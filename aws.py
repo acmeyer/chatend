@@ -3,14 +3,15 @@ import json
 import zipfile
 import os
 
-AWS_REGION='us-east-1'
-DEFAULT_DB_INSTANCE_CLASS='db.t2.micro'
-DEFAULT_DB_STORAGE=20
-AWS_ACCOUNT_ID=os.getenv('AWS_ACCOUNT_ID')
+AWS_REGION = 'us-east-1'
+DEFAULT_DB_INSTANCE_CLASS = 'db.t2.micro'
+DEFAULT_DB_STORAGE = 20
+AWS_ACCOUNT_ID = os.getenv('AWS_ACCOUNT_ID')
 assert AWS_ACCOUNT_ID is not None, "Please set your AWS_ACCOUNT_ID in .env file"
-AWS_LAMBDA_ROLE=f'arn:aws:iam::{AWS_ACCOUNT_ID}:role/lambda_api_gateway_role'
+AWS_LAMBDA_ROLE = f'arn:aws:iam::{AWS_ACCOUNT_ID}:role/lambda_api_gateway_role'
 api_client = boto3.client('apigateway')
 lambda_client = boto3.client('lambda')
+
 
 def create_new_api(name: str, description: str | None):
     """Creates a new API Gateway API"""
@@ -23,10 +24,11 @@ def create_new_api(name: str, description: str | None):
         "api_id": response['id']
     })
 
+
 def create_new_api_endpoint(
-    api_id: str, 
-    endpoint: str, 
-    method: str, 
+    api_id: str,
+    endpoint: str,
+    method: str,
     code: str,
     runtime: str = 'nodejs18.x'
 ):
@@ -63,11 +65,10 @@ def create_new_api_endpoint(
     # Create a Lambda function
     endpoint_name = endpoint.replace('/', '-')
     function_name = f'{api_id}-{endpoint_name}'
-    lambda_response = create_endpoint_function(function_name=function_name, code=code, runtime=runtime)
+    lambda_response = create_endpoint_function(
+        function_name=function_name, code=code, runtime=runtime)
     # Add the Lambda function to the method
     lambda_arn = lambda_response['FunctionArn']
-
-    # Everything below this point is not working yet
 
     # Give API Gateway permission to invoke the Lambda function
     lambda_client.add_permission(
@@ -88,8 +89,8 @@ def create_new_api_endpoint(
     )
     # Deploy the API
     api_client.create_deployment(
-      restApiId=api_id,
-      stageName='prod',
+        restApiId=api_id,
+        stageName='prod',
     )
     # Return the endpoint URL
     return json.dumps({
@@ -113,13 +114,13 @@ def create_resource_method(api_id: str, resource_id: str | None, method: str = '
         restApiId=api_id,
         resourceId=resource_id,
         httpMethod=method,
-        authorizationType='NONE', # TODO: Change this
+        authorizationType='NONE',  # TODO: Change this
     )
     return method_response
 
 
 def create_endpoint_function(
-    function_name: str, 
+    function_name: str,
     code: str,
     runtime: str,
 ):
@@ -163,5 +164,3 @@ def create_endpoint_function(
     os.remove(filename)
     os.remove('lambda_function.zip')
     return lambda_response
-
-
