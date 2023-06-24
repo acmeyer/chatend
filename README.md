@@ -15,6 +15,5 @@ This is an experimental repository that uses OpenAI's API and AWS API to create 
 There are many improvements you could make to this. Please feel free to contribute any that you think of, here are a few ideas:
 
 - Add database function for creation of a database and tables
-- Add a function for creating authentication for the API using Cognito
 - Integrate with other cloud providers, such as Azure and GCP
 - Save messages and conversations to a database to keep track of state in between runs
